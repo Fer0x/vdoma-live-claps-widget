@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>vdoma.live claps widget</title>
+</head>
+<body>
+    <script type="text/javascript">
+        const WAIT_FOR_COUNT = 10;
+        const TASK_INTERVAL = 2000;
+
+        const params = location.search.substr(1).split('&').reduce((acc, pair) => {
+            const [key, value] = pair.split('=');
+
+            return {
+                ...acc,
+                [key]: decodeURIComponent(value)
+            }
+        }, {});
+
+        const getBaseUrl = method => `https://api.countapi.xyz/${method}`;
+        const namespace = 'vdoma.live';
+
+        const getUrl = (method, eventId, rest = '') => {
+            return `${getBaseUrl(method)}/${namespace}/${eventId}${rest}`;
+        };
+
+        const createCounter = eventId => {
+            return fetch(`${getBaseUrl('create')}?key=${eventId}&namespace=${namespace}&enable_reset=1`);
+        }
+
+        const getCounter = eventId => {
+            return fetch(getUrl('get', eventId)).then(res => res.json()).then(res => res.value);
+        };
+
+        const resetCounter = eventId => {
+            return fetch(getUrl('set', eventId, '?value=0'));
+        };
+
+        const handleTick = async eventId => {
+            const counter = await getCounter(eventId);
+
+            if (counter >= WAIT_FOR_COUNT) {
+                animate();
+                resetCounter(eventId);
+            }
+        };
+
+        if (params.eventId) {
+            createCounter(params.eventId);
+
+            const task = setInterval(() => {
+                handleTick(params.eventId);
+            }, TASK_INTERVAL);
+        }
+
+        const animate = () => {
+          console.log('animation');
+        };
+    </script>
+</body>
+</html>
