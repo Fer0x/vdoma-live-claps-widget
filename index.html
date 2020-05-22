@@ -187,16 +187,20 @@ from {
             return fetch(getUrl('set', event, '?value=0'));
         };
 
+        let lastCount = -1;
+
         const handleTick = async event => {
             const counter = await getCounter(event);
 
-            if (counter >= MIN_ANIMATION_COUNT) {
+            if (counter >= MIN_ANIMATION_COUNT && counter !== lastCount) {
                 animate(counter);
 
                 if (counter >= MAX_ANIMATION_COUNT) {
                     resetCounter(event);
                 }
             }
+
+            lastCount = counter;
         };
 
         if (params.event) {
