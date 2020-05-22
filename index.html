@@ -190,9 +190,12 @@ from {
         const handleTick = async event => {
             const counter = await getCounter(event);
 
-            if (counter >= WAIT_FOR_COUNT) {
+            if (counter >= MIN_ANIMATION_COUNT) {
                 animate(counter);
-                resetCounter(event);
+
+                if (counter >= MAX_ANIMATION_COUNT) {
+                    resetCounter(event);
+                }
             }
         };
 
